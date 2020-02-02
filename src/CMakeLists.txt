@@ -1,0 +1,6 @@
+add_library(process Process.cpp Process.h global.h)
+add_library(pgroup ProcessGroup.cpp ProcessGroup.h global.h)
+add_library(app Application.cpp Application.h global.h)
+add_library(pm ProcessManager.cpp ProcessManager.h global.h)
+add_executable(small_demo main.cpp global.h ProcessManager.h)
+target_link_libraries(small_demo process pm app pgroup)
