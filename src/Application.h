@@ -9,8 +9,9 @@ namespace pm{
     using std::vector;
     class Application {
     public:
-        Application(const string& execname, int n_workers);
+        Application(const string& execname, int n_workers, string wdir);
         int n_workers;
+        string wdir;
         string execname;
     };
 }

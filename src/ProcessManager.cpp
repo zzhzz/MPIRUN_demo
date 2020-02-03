@@ -7,28 +7,30 @@
 #include <csignal>
 #include <sys/wait.h>
 #include "Application.h"
+#include "ProcessGroup.h"
 
 namespace pm{
     using std::cout;
     using std::cerr;
     using std::endl;
     static vector<Process*> process_templist;
+    static ProcessGroup* processGroup;
     ProcessManager::ProcessManager() {
-        signal(SIGCHLD, ProcessManager::child_exit_handler);
+        signal(SIGCHLD, child_exit_handler);
+    }
+    void ProcessManager::setProcessGroup(ProcessGroup *pGroup) {
+        processGroup = pGroup;
     }
     void ProcessManager::child_exit_handler(int v) {
         union wait wstat;
         pid_t pid;
         while(true){
-            pid = wait3((int*)&wstat, WNOHANG, (struct rusage*)NULL);
+            pid = wait3((int*)&wstat, WNOHANG, (struct rusage*)nullptr);
             if(pid == 0) return;
             else if(pid == -1) return;
             else{
-                for(auto* proc : process_templist){
-                    if(proc->pid == pid){
-                        proc->state = PROCESS_EXIT;
-                    }
-                }
+                Process* process = processGroup->Find_pid(pid);
+                process->state = PROCESS_EXIT;
             }
         }
     }

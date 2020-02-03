@@ -9,8 +9,11 @@ namespace pm{
     using std::cout;
     using std::cerr;
     using std::endl;
-    ProcessGroup::ProcessGroup(const ProcessManager* pm) {
-        pm = pm;
+    ProcessGroup::ProcessGroup(pm::ProcessManager *pm) {
+        this->pm = pm;
+    }
+    void ProcessGroup::setProcessManager(ProcessManager* pm) {
+        this->pm = pm;
     }
     void ProcessGroup::add_application(Application* app) {
         app_list.push_back(app);
@@ -24,9 +27,11 @@ namespace pm{
                 auto* process = new Process(world_rank++, app);
                 process_list.push_back(process);
                 map_relation[app].push_back(process);
-                int errs = pm->Fork(process);
-                if(errs == -1){
+                int pid = pm->Fork(process);
+                if(pid == -1){
                     cerr << "Error happened" << endl;
+                } else {
+                    process_mapping[pid] = ((int)process_list.size()) - 1;
                 }
             }
         }
@@ -38,5 +43,13 @@ namespace pm{
             if(exit_flag) break;
         }
         cout << "Congratulations, all clear." << endl;
+    }
+    Process* ProcessGroup::Find_pid(pid_t pid) {
+        if (process_mapping.find(pid) != process_mapping.end()){
+            return process_list[process_mapping[pid]];
+        } else {
+            cerr << "Not record pid " << pid << endl;
+            return nullptr;
+        }
     }
 }

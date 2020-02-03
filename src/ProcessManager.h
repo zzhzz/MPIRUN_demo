@@ -3,14 +3,21 @@
 //
 #pragma once
 #include "Process.h"
-
+#include "ProcessGroup.h"
 
 namespace pm{
+    class ProcessGroup;
     class ProcessManager {
     public:
-        ProcessManager();
+        static ProcessManager* getInstance() {
+            static ProcessManager pm;
+            return &pm;
+        }
         static void child_exit_handler(int v);
-        int Fork(Process* process);
+        static void setProcessGroup(ProcessGroup* pGroup);
+        static int Fork(Process* process);
+    private:
+        ProcessManager();
     };
 }
 

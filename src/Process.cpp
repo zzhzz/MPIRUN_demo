@@ -6,6 +6,7 @@
 
 namespace pm{
     using std::cout;
+    using std::cerr;
     using std::endl;
     Process::Process(int rank, Application* app) {
         this->wRank = rank;
@@ -15,12 +16,20 @@ namespace pm{
     int Process::execute() {
         cout << "child process " << getpid() << " run " << app->execname << endl;
         vector<const char*> args;
+        int err;
         args.push_back(app->execname.c_str());
-        chdir("./test/");
+        err = chdir(app->wdir.c_str());
+        if (err < 0){
+            cerr << "child process " << getpid() << " trap in error "
+                 << sys_errlist[errno] << " when chdir " << endl;
+
+        }
         state = PROCESS_ALIVE;
-        int rc = execvp(app->execname.c_str(), const_cast<char**>(args.data()));
-        if (rc < 0){
-            cout << sys_errlist[errno] << endl;
+        err = execvp(app->execname.c_str(), const_cast<char**>(args.data()));
+        if (err < 0){
+            cerr << "child process " << getpid() << " trap in error "
+                    << sys_errlist[errno] << " when execvp " << endl;
+            exit(0);
         }
     }
 }
